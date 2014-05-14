@@ -542,6 +542,7 @@ enum mode_key_cmd {
 	MODEKEYCOPY_UP,
 	MODEKEYCOPY_LEFTPRUNE,
 	MODEKEYCOPY_RIGHTPRUNE,
+	MODEKEYCOPY_CHANGEJOINMODE,
 };
 
 /* Entry in the default mode key tables. */
