@@ -540,6 +540,8 @@ enum mode_key_cmd {
 	MODEKEYCOPY_STARTSELECTION,
 	MODEKEYCOPY_TOPLINE,
 	MODEKEYCOPY_UP,
+	MODEKEYCOPY_LEFTPRUNE,
+	MODEKEYCOPY_RIGHTPRUNE,
 };
 
 /* Entry in the default mode key tables. */
@@ -723,6 +725,9 @@ struct screen_sel {
 
 	u_int		 ex;
 	u_int		 ey;
+
+	u_int leftprunex;
+	u_int rightprunex;
 
 	struct grid_cell cell;
 };
@@ -2085,7 +2090,7 @@ void	 screen_set_cursor_colour(struct screen *, const char *);
 void	 screen_set_title(struct screen *, const char *);
 void	 screen_resize(struct screen *, u_int, u_int, int);
 void	 screen_set_selection(struct screen *,
-	     u_int, u_int, u_int, u_int, u_int, struct grid_cell *);
+	     u_int, u_int, u_int, u_int, u_int, u_int, u_int, struct grid_cell *);
 void	 screen_clear_selection(struct screen *);
 int	 screen_check_selection(struct screen *, u_int, u_int);
 void	 screen_reflow(struct screen *, u_int);

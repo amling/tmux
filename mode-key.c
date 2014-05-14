@@ -148,6 +148,8 @@ const struct mode_key_cmdstr mode_key_cmdstr_copy[] = {
 	{ MODEKEYCOPY_STARTSELECTION, "begin-selection" },
 	{ MODEKEYCOPY_TOPLINE, "top-line" },
 	{ MODEKEYCOPY_UP, "cursor-up" },
+	{ MODEKEYCOPY_LEFTPRUNE, "left-prune" },
+	{ MODEKEYCOPY_RIGHTPRUNE, "right-prune" },
 
 	{ 0, NULL }
 };
@@ -278,6 +280,7 @@ const struct mode_key_entry mode_key_vi_copy[] = {
 	{ '?',			    0, MODEKEYCOPY_SEARCHUP },
 	{ 'A',			    0, MODEKEYCOPY_APPENDSELECTION },
 	{ 'B',			    0, MODEKEYCOPY_PREVIOUSSPACE },
+	{ 'C',			    0, MODEKEYCOPY_RIGHTPRUNE },
 	{ 'D',			    0, MODEKEYCOPY_COPYENDOFLINE },
 	{ 'E',			    0, MODEKEYCOPY_NEXTSPACEEND },
 	{ 'F',			    0, MODEKEYCOPY_JUMPBACK },
@@ -304,6 +307,7 @@ const struct mode_key_entry mode_key_vi_copy[] = {
 	{ '\r',			    0, MODEKEYCOPY_COPYSELECTION },
 	{ '^',			    0, MODEKEYCOPY_BACKTOINDENTATION },
 	{ 'b',			    0, MODEKEYCOPY_PREVIOUSWORD },
+	{ 'c',			    0, MODEKEYCOPY_LEFTPRUNE },
 	{ 'e',			    0, MODEKEYCOPY_NEXTWORDEND },
 	{ 'f',			    0, MODEKEYCOPY_JUMP },
 	{ 'g',			    0, MODEKEYCOPY_HISTORYTOP },
