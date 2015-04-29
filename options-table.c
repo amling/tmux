@@ -63,6 +63,11 @@ const struct options_table_entry server_options_table[] = {
 	  .default_num = 20
 	},
 
+	{ .name = "default-terminal",
+	  .type = OPTIONS_TABLE_STRING,
+	  .default_str = "screen"
+	},
+
 	{ .name = "escape-time",
 	  .type = OPTIONS_TABLE_NUMBER,
 	  .minimum = 0,
@@ -143,11 +148,6 @@ const struct options_table_entry session_options_table[] = {
 	{ .name = "default-shell",
 	  .type = OPTIONS_TABLE_STRING,
 	  .default_str = _PATH_BSHELL
-	},
-
-	{ .name = "default-terminal",
-	  .type = OPTIONS_TABLE_STRING,
-	  .default_str = "screen"
 	},
 
 	{ .name = "destroy-unattached",
