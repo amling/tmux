@@ -1820,9 +1820,15 @@ window_copy_cursor_end_of_line(struct window_pane *wp)
 	struct screen			*s = &data->screen;
 	struct grid			*gd = back_s->grid;
 	u_int				 px, py;
+	int				 keys;
 
 	py = screen_hsize(back_s) + data->cy - data->oy;
 	px = window_copy_find_length(wp, py);
+
+	/* Actually, vi '$' doesn't really go "off" the end of the line... */
+	keys = options_get_number(&wp->window->options, "mode-keys");
+	if (keys != MODEKEY_EMACS && px > 0)
+		--px;
 
 	if (data->cx == px && s->sel.lineflag == LINE_SEL_NONE) {
 		if (data->screen.sel.flag && data->rectflag)
