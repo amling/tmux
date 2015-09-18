@@ -151,6 +151,7 @@ const struct mode_key_cmdstr mode_key_cmdstr_copy[] = {
 	{ MODEKEYCOPY_LEFTPRUNE, "left-prune" },
 	{ MODEKEYCOPY_RIGHTPRUNE, "right-prune" },
 	{ MODEKEYCOPY_CHANGEJOINMODE, "change-joinmode" },
+	{ MODEKEYCOPY_STARTORCOPYSELECTION, "start-or-copy-selection" },
 
 	{ 0, NULL }
 };

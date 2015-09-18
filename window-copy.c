@@ -59,7 +59,7 @@ void	window_copy_copy_buffer(struct window_pane *, const char *, void *,
 	    size_t);
 void	window_copy_copy_pipe(struct window_pane *, struct session *,
 	    const char *, const char *);
-void	window_copy_copy_selection(struct window_pane *, const char *);
+int	window_copy_copy_selection(struct window_pane *, const char *);
 void	window_copy_append_selection(struct window_pane *, const char *);
 void	window_copy_clear_selection(struct window_pane *);
 void	window_copy_copy_line(struct window_pane *, char **, size_t *, u_int,
@@ -787,6 +787,18 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
 		break;
 	case MODEKEYCOPY_CHANGEJOINMODE:
 		window_copy_change_joinmode(wp);
+		break;
+	case MODEKEYCOPY_STARTORCOPYSELECTION:
+		if (sess != NULL) {
+			if(window_copy_copy_selection(wp, NULL))
+				window_pane_reset_mode(wp);
+			else {
+				s->sel.lineflag = LINE_SEL_NONE;
+				window_copy_start_selection(wp);
+				window_copy_redraw_screen(wp);
+			}
+			return;
+		}
 		break;
 	default:
 		break;
@@ -1599,7 +1611,7 @@ window_copy_copy_pipe(struct window_pane *wp, struct session *sess,
 	window_copy_copy_buffer(wp, bufname, buf, len);
 }
 
-void
+int
 window_copy_copy_selection(struct window_pane *wp, const char *bufname)
 {
 	void	*buf;
@@ -1607,9 +1619,11 @@ window_copy_copy_selection(struct window_pane *wp, const char *bufname)
 
 	buf = window_copy_get_selection(wp, &len);
 	if (buf == NULL)
-		return;
+		return 0;
 
 	window_copy_copy_buffer(wp, bufname, buf, len);
+
+	return 1;
 }
 
 void
