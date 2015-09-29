@@ -1457,10 +1457,12 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	}
 
 	/* Copy the lines. */
-	for (i = sy; i <= ey; i++) {
+	i = sy;
+	while (i <= ey) {
 		window_copy_copy_line(wp, &buf, &off, i,
 		    (i == sy ? firstsx : restsx),
 		    (i == ey ? lastex : restex));
+		++i;
 	}
 
 	/* Don't bother if no data. */
