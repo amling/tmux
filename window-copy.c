@@ -1397,7 +1397,7 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	struct screen			*s = &data->screen;
 	char				*buf;
 	size_t				 off;
-	u_int				 i, xx, yy, sx, sy, ex, ey, ey_last;
+	u_int				 i, sx, sy, ex, ey, ey_last, t;
 	u_int				 firstsx, lastex, restex, restsx;
 
 	if (!s->sel.flag)
@@ -1414,14 +1414,20 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	 */
 
 	/* Find start and end. */
-	xx = data->cx;
-	yy = screen_hsize(data->backing) + data->cy - data->oy;
-	if (yy < data->sely || (yy == data->sely && xx < data->selx)) {
-		sx = xx; sy = yy;
-		ex = data->selx; ey = data->sely;
-	} else {
-		sx = data->selx; sy = data->sely;
-		ex = xx; ey = yy;
+	sx = data->selx;
+	sy = data->sely;
+	ex = data->cx;
+	ey = screen_hsize(data->backing) + data->cy - data->oy;
+
+	/* And flip them where appropriate. */
+	if ((sy > ey) || (sy == ey && sx > ex)) {
+		t = sx;
+		sx = ex;
+		ex = t;
+
+		t = sy;
+		sy = ey;
+		ey = t;
 	}
 
 	/* Trim ex to end of line. */
