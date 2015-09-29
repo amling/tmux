@@ -1458,20 +1458,17 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 
 	/* Copy the lines. */
 	i = sy;
-	while (i <= ey) {
+	while (1) {
 		window_copy_copy_line(wp, &buf, &off, i,
 		    (i == sy ? firstsx : restsx),
 		    (i == ey ? lastex : restex));
+		if (i == ey) {
+			off -= strlen(join_modes[data->joinmode].delimiter); /* remove final delimiter */
+			break;
+		}
 		++i;
 	}
 
-	/* Don't bother if no data. */
-	if (off == 0) {
-		free(buf);
-		return (NULL);
-	}
-	if (lastex <= ey_last)
-		off -= strlen(join_modes[data->joinmode].delimiter); /* remove final delimiter */
 	*len = off;
 	return (buf);
 }
