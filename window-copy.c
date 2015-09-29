@@ -1434,10 +1434,8 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	 * first line (firstsx), end of last line (lastex), start (restsx) and
 	 * end (restex) of all other lines.
 	 */
-	xx = screen_size_x(s);
-
 	lastex = ex + 1;
-	restex = xx;
+	restex = screen_size_x(s);
 	firstsx = sx;
 	restsx = 0;
 
