@@ -199,7 +199,6 @@ window_copy_init(struct window_pane *wp)
 {
 	struct window_copy_mode_data	*data;
 	struct screen			*s;
-	int				 keys;
 
 	wp->modedata = data = xmalloc(sizeof *data);
 	data->oy = 0;
@@ -235,12 +234,7 @@ window_copy_init(struct window_pane *wp)
 	if (options_get_number(&wp->window->options, "mode-mouse"))
 		s->mode |= MODE_MOUSE_STANDARD;
 
-	keys = options_get_number(&wp->window->options, "mode-keys");
-	if (keys == MODEKEY_EMACS)
-		mode_key_init(&data->mdata, &mode_key_tree_emacs_copy);
-	else
-		mode_key_init(&data->mdata, &mode_key_tree_vi_copy);
-	s->sel.modekeys = keys;
+	mode_key_init(&data->mdata, &mode_key_tree_vi_copy);
 
 	data->backing = NULL;
 
@@ -412,7 +406,7 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
 	struct window_copy_mode_data	*data = wp->modedata;
 	struct screen			*s = &data->screen;
 	u_int				 n;
-	int				 np, keys;
+	int				 np;
 	enum mode_key_cmd		 cmd;
 	const char			*arg, *ss;
 
@@ -795,21 +789,13 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
 	return;
 
 input_on:
-	keys = options_get_number(&wp->window->options, "mode-keys");
-	if (keys == MODEKEY_EMACS)
-		mode_key_init(&data->mdata, &mode_key_tree_emacs_edit);
-	else
-		mode_key_init(&data->mdata, &mode_key_tree_vi_edit);
+	mode_key_init(&data->mdata, &mode_key_tree_vi_edit);
 
 	window_copy_redraw_lines(wp, screen_size_y(s) - 1, 1);
 	return;
 
 input_off:
-	keys = options_get_number(&wp->window->options, "mode-keys");
-	if (keys == MODEKEY_EMACS)
-		mode_key_init(&data->mdata, &mode_key_tree_emacs_copy);
-	else
-		mode_key_init(&data->mdata, &mode_key_tree_vi_copy);
+	mode_key_init(&data->mdata, &mode_key_tree_vi_copy);
 
 	data->inputtype = WINDOW_COPY_OFF;
 	data->inputprompt = NULL;
@@ -1425,7 +1411,6 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	size_t				 off;
 	u_int				 i, xx, yy, sx, sy, ex, ey, ey_last;
 	u_int				 firstsx, lastex, restex, restsx;
-	int				 keys;
 
 	if (!s->sel.flag)
 		return (NULL);
@@ -1463,17 +1448,7 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 	 */
 	xx = screen_size_x(s);
 
-	/*
-	 * Behave according to mode-keys. If it is emacs, copy like emacs,
-	 * keeping the top-left-most character, and dropping the
-	 * bottom-right-most, regardless of copy direction. If it is vi, also
-	 * keep bottom-right-most character.
-	 */
-	keys = options_get_number(&wp->window->options, "mode-keys");
-	if (keys == MODEKEY_EMACS)
-		lastex = ex;
-	else
-		lastex = ex + 1;
+	lastex = ex + 1;
 	restex = xx;
 	firstsx = sx;
 	restsx = 0;
@@ -1507,8 +1482,8 @@ window_copy_get_selection(struct window_pane *wp, size_t *len)
 		free(buf);
 		return (NULL);
 	}
-	if (keys == MODEKEY_EMACS || lastex <= ey_last)
-		off -= strlen(join_modes[data->joinmode].delimiter); /* remove final delimiter (unless at end in vi mode) */
+	if (lastex <= ey_last)
+		off -= strlen(join_modes[data->joinmode].delimiter); /* remove final delimiter */
 	*len = off;
 	return (buf);
 }
@@ -1777,14 +1752,12 @@ window_copy_cursor_end_of_line(struct window_pane *wp)
 	struct screen			*back_s = data->backing;
 	struct grid			*gd = back_s->grid;
 	u_int				 px, py;
-	int				 keys;
 
 	py = screen_hsize(back_s) + data->cy - data->oy;
 	px = window_copy_find_length(wp, py);
 
 	/* Actually, vi '$' doesn't really go "off" the end of the line... */
-	keys = options_get_number(&wp->window->options, "mode-keys");
-	if (keys != MODEKEY_EMACS && px > 0)
+	if (px > 0)
 		--px;
 
 	if (data->cx == px) {
@@ -2109,15 +2082,14 @@ window_copy_cursor_next_word_end(struct window_pane *wp,
 	struct options			*oo = &wp->window->options;
 	struct screen			*back_s = data->backing;
 	u_int				 px, py, xx, yy;
-	int				 keys, expected = 1;
+	int				 expected = 1;
 
 	px = data->cx;
 	py = screen_hsize(back_s) + data->cy - data->oy;
 	xx = window_copy_find_length(wp, py);
 	yy = screen_hsize(back_s) + screen_size_y(back_s) - 1;
 
-	keys = options_get_number(oo, "mode-keys");
-	if (keys == MODEKEY_VI && !window_copy_in_set(wp, px, py, separators))
+	if (!window_copy_in_set(wp, px, py, separators))
 		px++;
 
 	/*
@@ -2144,7 +2116,7 @@ window_copy_cursor_next_word_end(struct window_pane *wp,
 		expected = !expected;
 	} while (expected == 0);
 
-	if (keys == MODEKEY_VI && px != 0)
+	if (px != 0)
 		px--;
 
 	window_copy_update_cursor(wp, px, data->cy);
