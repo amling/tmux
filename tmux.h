@@ -712,11 +712,6 @@ LIST_HEAD(joblist, job);
 /* Screen selection. */
 struct screen_sel {
 	int		 flag;
-	enum {
-		LINE_SEL_NONE,
-		LINE_SEL_LEFT_RIGHT,
-		LINE_SEL_RIGHT_LEFT,
-	} lineflag;
 
 	int		 modekeys;
 
