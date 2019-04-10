@@ -76,8 +76,8 @@ void	window_copy_cursor_up(struct window_pane *, int);
 void	window_copy_cursor_down(struct window_pane *, int);
 void	window_copy_cursor_jump(struct window_pane *);
 void	window_copy_cursor_jump_back(struct window_pane *);
-void	window_copy_cursor_jump_to(struct window_pane *);
-void	window_copy_cursor_jump_to_back(struct window_pane *);
+void	window_copy_cursor_jump_to(struct window_pane *, int);
+void	window_copy_cursor_jump_to_back(struct window_pane *, int);
 void	window_copy_cursor_next_word(struct window_pane *, const char *);
 void	window_copy_cursor_next_word_end(struct window_pane *, const char *);
 void	window_copy_cursor_previous_word(struct window_pane *, const char *);
@@ -399,7 +399,7 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
 	struct window_copy_mode_data	*data = wp->modedata;
 	struct screen			*s = &data->screen;
 	u_int				 n;
-	int				 np;
+	int				 np, first;
 	enum mode_key_cmd		 cmd;
 	const char			*arg, *ss;
 
@@ -423,12 +423,18 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
 					window_copy_cursor_jump_back(wp);
 			}
 			if (data->inputtype == WINDOW_COPY_JUMPTOFORWARD) {
-				for (; np != 0; np--)
-					window_copy_cursor_jump_to(wp);
+				first = 1;
+				for (; np != 0; np--) {
+					window_copy_cursor_jump_to(wp, first);
+					first = 0;
+				}
 			}
 			if (data->inputtype == WINDOW_COPY_JUMPTOBACK) {
-				for (; np != 0; np--)
-					window_copy_cursor_jump_to_back(wp);
+				first = 1;
+				for (; np != 0; np--) {
+					window_copy_cursor_jump_to_back(wp, first);
+					first = 0;
+				}
 			}
 		}
 		data->jumptype = data->inputtype;
@@ -648,10 +654,10 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
 				window_copy_cursor_jump_back(wp);
 		} else if (data->jumptype == WINDOW_COPY_JUMPTOFORWARD) {
 			for (; np != 0; np--)
-				window_copy_cursor_jump_to(wp);
+				window_copy_cursor_jump_to(wp, 0);
 		} else if (data->jumptype == WINDOW_COPY_JUMPTOBACK) {
 			for (; np != 0; np--)
-				window_copy_cursor_jump_to_back(wp);
+				window_copy_cursor_jump_to_back(wp, 0);
 		}
 		break;
 	case MODEKEYCOPY_JUMPREVERSE:
@@ -663,10 +669,10 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
 				window_copy_cursor_jump(wp);
 		} else if (data->jumptype == WINDOW_COPY_JUMPTOFORWARD) {
 			for (; np != 0; np--)
-				window_copy_cursor_jump_to_back(wp);
+				window_copy_cursor_jump_to_back(wp, 0);
 		} else if (data->jumptype == WINDOW_COPY_JUMPTOBACK) {
 			for (; np != 0; np--)
-				window_copy_cursor_jump_to(wp);
+				window_copy_cursor_jump_to(wp, 0);
 		}
 		break;
 	case MODEKEYCOPY_JUMPBACK:
@@ -1911,7 +1917,7 @@ window_copy_cursor_jump_back(struct window_pane *wp)
 }
 
 void
-window_copy_cursor_jump_to(struct window_pane *wp)
+window_copy_cursor_jump_to(struct window_pane *wp, int allow_still)
 {
 	struct window_copy_mode_data	*data = wp->modedata;
 	struct screen			*back_s = data->backing;
@@ -1919,7 +1925,7 @@ window_copy_cursor_jump_to(struct window_pane *wp)
 	struct utf8_data		 ud;
 	u_int				 px, py, xx;
 
-	px = data->cx + 1;
+	px = data->cx + 1 + (allow_still ? 0 : 1);
 	py = screen_hsize(back_s) + data->cy - data->oy;
 	xx = window_copy_find_length(wp, py);
 
@@ -1938,7 +1944,7 @@ window_copy_cursor_jump_to(struct window_pane *wp)
 }
 
 void
-window_copy_cursor_jump_to_back(struct window_pane *wp)
+window_copy_cursor_jump_to_back(struct window_pane *wp, int allow_still)
 {
 	struct window_copy_mode_data	*data = wp->modedata;
 	struct screen			*back_s = data->backing;
@@ -1950,6 +1956,8 @@ window_copy_cursor_jump_to_back(struct window_pane *wp)
 	py = screen_hsize(back_s) + data->cy - data->oy;
 
 	if (px > 0)
+		px--;
+	if (px > 0 && !allow_still)
 		px--;
 
 	for (;;) {
