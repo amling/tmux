@@ -525,7 +525,6 @@ enum mode_key_cmd {
 	MODEKEYCOPY_PREVIOUSPAGE,
 	MODEKEYCOPY_PREVIOUSSPACE,
 	MODEKEYCOPY_PREVIOUSWORD,
-	MODEKEYCOPY_RECTANGLETOGGLE,
 	MODEKEYCOPY_RIGHT,
 	MODEKEYCOPY_SCROLLDOWN,
 	MODEKEYCOPY_SCROLLUP,
@@ -713,7 +712,6 @@ LIST_HEAD(joblist, job);
 /* Screen selection. */
 struct screen_sel {
 	int		 flag;
-	int		 rectflag;
 	enum {
 		LINE_SEL_NONE,
 		LINE_SEL_LEFT_RIGHT,
@@ -2092,7 +2090,7 @@ void	 screen_set_cursor_colour(struct screen *, const char *);
 void	 screen_set_title(struct screen *, const char *);
 void	 screen_resize(struct screen *, u_int, u_int, int);
 void	 screen_set_selection(struct screen *,
-	     u_int, u_int, u_int, u_int, u_int, u_int, u_int, struct grid_cell *);
+	     u_int, u_int, u_int, u_int, u_int, u_int, struct grid_cell *);
 void	 screen_clear_selection(struct screen *);
 int	 screen_check_selection(struct screen *, u_int, u_int);
 void	 screen_reflow(struct screen *, u_int);
